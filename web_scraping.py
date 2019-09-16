@@ -9,18 +9,23 @@ from splinter.exceptions import ElementDoesNotExist
 from bs4 import BeautifulSoup
 import pandas as pd
 
+def init_browser():
+    executable_path = {"executable_path": "chromedriver"}
+    return Browser("chrome", **executable_path, headless=False)
+
+
 def scrape():
 
     browser = Browser("chrome", executable_path="chromedriver", headless=True)
-    title, article = news(browser)
+    title, article = news()
 
     post = {
         "title": title,
         "article": article,
-        "featured_image": featured_image(browser),
-        "hemispheres": hemispheres(browser),
-        "weather": twitter(browser),
-        "facts": facts(browser)
+        "featured_image": featured_image(),
+        "hemispheres": hemispheres(),
+        "weather": twitter(),
+        "facts": facts()
     }
 
     browser.quit()
@@ -28,9 +33,8 @@ def scrape():
 
 
 #get article title and text
-def news(browser):
-    executable_path = {'executable_path': 'chromedriver'}
-    browser = Browser('chrome', **executable_path)
+def news():
+    browser = init_browser()
 
 
     url = 'https://mars.nasa.gov/news/'
@@ -44,7 +48,8 @@ def news(browser):
 
 
 #get image
-def featured_image(browser):
+def featured_image():
+    browser = init_browser()
     url = 'https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars'
     browser.visit(url)
     button = browser.find_by_id('full_image')
@@ -64,7 +69,9 @@ def featured_image(browser):
     return featured_img_url
 
 #get weather from twitter
-def twitter(browser):
+def twitter():
+
+    browser = init_browser()
     url = 'https://twitter.com/marswxreport?lang=en'
     browser.visit(url)
 
@@ -81,7 +88,9 @@ def twitter(browser):
 
 
     #get table of facts
-def facts(browser):
+def facts():
+
+    browser = init_browser()
     url = 'https://space-facts.com/mars/'
     browser.visit(url)
 
@@ -91,8 +100,9 @@ def facts(browser):
     mars_facts = df.to_html()
     return mars_facts
 
-def hemispheres(browser):
+def hemispheres():
 # get hemisphere pictures
+    browser = init_browser()
     url = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars'
     browser.visit(url)
     hemisphere_image_urls = []
