@@ -51,8 +51,10 @@ def featured_image():
 
     more_info = browser.find_link_by_partial_text('more info')
 
-    more_info.click()
-
+    try:
+        more_info.click()
+    except:
+        
     html = browser.html
     soup_img = BeautifulSoup(html, 'html.parser')
     
@@ -112,3 +114,5 @@ def hemispheres():
         hemisphere_image_urls.append(hemisphere)
         browser.back()
     return hemisphere_image_urls, hemisphere
+
+scrape()
