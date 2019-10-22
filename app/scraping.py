@@ -3,10 +3,6 @@ from splinter.exceptions import ElementDoesNotExist
 from bs4 import BeautifulSoup
 import pandas as pd
 
-def init_browser():
-    executable_path = {"executable_path": "chromedriver"}
-    return Browser("chrome", **executable_path, headless=False)
-
 
 def scrape():
 
@@ -28,22 +24,22 @@ def scrape():
 
 #get article title and text
 def news():
-    browser = init_browser()
-
-
     url = 'https://mars.nasa.gov/news/'
     browser.visit(url)
+
     html = browser.html
     soup = BeautifulSoup(html, 'html.parser')
+
     title = soup.find('div', class_="content_title").get_text()
+
     article = soup.find('div', class_='article_teaser_body').get_text()
+    browser
     return title, article
 
 
 
 #get image
 def featured_image():
-    browser = init_browser()
     url = 'https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars'
     browser.visit(url)
     button = browser.find_by_id('full_image')
@@ -53,7 +49,8 @@ def featured_image():
 
     try:
         more_info.click()
-    except:
+    except AttributeError:
+        return None
         
     html = browser.html
     soup_img = BeautifulSoup(html, 'html.parser')
@@ -67,7 +64,6 @@ def featured_image():
 #get weather from twitter
 def twitter():
 
-    browser = init_browser()
     url = 'https://twitter.com/marswxreport?lang=en'
     browser.visit(url)
 
@@ -78,7 +74,7 @@ def twitter():
 
     # this will not always be accurate, I just kept iterating down the timeline until I got something resembling weather
     # I realize this is hardcoding a solution, but scraping twitter is a nightmare
-    mars_weather=print(soup.find_all('p', class_="TweetTextSize TweetTextSize--normal js-tweet-text tweet-text")[4].get_text())
+    mars_weather=print(soup.find_all('p', class_="TweetTextSize TweetTextSize--normal js-tweet-text tweet-text").get_text())
     return mars_weather
 
 
@@ -86,7 +82,7 @@ def twitter():
     #get table of facts
 def facts():
 
-    browser = init_browser()
+    
     url = 'https://space-facts.com/mars/'
     browser.visit(url)
 
@@ -98,7 +94,7 @@ def facts():
 
 def hemispheres():
 # get hemisphere pictures
-    browser = init_browser()
+
     url = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars'
     browser.visit(url)
     hemisphere_image_urls = []
@@ -108,9 +104,14 @@ def hemispheres():
     for x in range(len(links)):
         hemisphere = {}
         browser.find_by_css("a.itemLink.product-item h3")[x].click()
+
         elem = browser.find_link_by_partial_text('Sample').first
+
         hemisphere['img_url'] = elem['href']
+        
         hemisphere['title'] = browser.find_by_css("h2.title").text
+        
+        
         hemisphere_image_urls.append(hemisphere)
         browser.back()
     return hemisphere_image_urls, hemisphere
